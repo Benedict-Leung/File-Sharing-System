@@ -53,7 +53,6 @@ public class ClientConnectionHandler extends Thread {
             } else {
                 System.out.println("No such command: " + command);
             }
-            disconnect();
         }
     }
 
@@ -72,6 +71,8 @@ public class ClientConnectionHandler extends Thread {
                 out.write(bytes, 0, count);
             }
             in.close();
+            out.close();
+            this.in.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -92,6 +93,8 @@ public class ClientConnectionHandler extends Thread {
                 out.write(bytes, 0, count);
             }
             out.close();
+            in.close();
+            this.out.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -129,17 +132,5 @@ public class ClientConnectionHandler extends Thread {
             e.printStackTrace();
         }
         return root;
-    }
-
-    /**
-     * Disconnect the client
-     */
-    private void disconnect() {
-        try {
-            in.close();
-            out.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }

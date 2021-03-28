@@ -49,11 +49,11 @@ public class Controller {
         // Download click function
         download.setOnAction(event -> {
             try {
-                connect();
-
                 if (serverSelected != null) {
+                    connect();
                     networkOut.writeObject("DOWNLOAD " + serverSelected.getAbsolutePath());
                     File file = new File(this.folder + "/" + serverSelected.getName());
+                    serverSelected = null;
                     FileOutputStream out = new FileOutputStream(file);
                     byte[] bytes = new byte[8192];
 
@@ -62,22 +62,26 @@ public class Controller {
                         out.write(bytes, 0, count);
                     }
                     out.close();
-                    disconnect();
+                    networkIn.close();
                     updateDirectories();
+                } else {
+                    select.setText("Please select a file from server side");
                 }
             } catch (Exception e) {
                 e.printStackTrace();
+            } finally {
+                disconnect();
             }
         });
 
         // Upload click function
         upload.setOnAction(event -> {
             try {
-                connect();
-
                 if (clientSelected != null) {
+                    connect();
                     networkOut.writeObject("UPLOAD " + clientSelected.getName());
                     File file = new File(clientSelected.getAbsolutePath());
+                    clientSelected = null;
                     FileInputStream in = new FileInputStream(file);
                     byte[] bytes = new byte[8192];
 
@@ -86,11 +90,15 @@ public class Controller {
                         networkOut.write(bytes, 0, count);
                     }
                     in.close();
-                    disconnect();
+                    networkOut.close();
                     updateDirectories();
+                } else {
+                    select.setText("Please select a file from client side");
                 }
             } catch (Exception e) {
                 e.printStackTrace();
+            } finally {
+                disconnect();
             }
         });
         // Initialize columns for client directories
@@ -130,7 +138,18 @@ public class Controller {
             @Override
             protected void updateItem(Long item, boolean empty) {
                 super.updateItem(item, empty);
-                setText(empty ? null : (item == 0) ? null : parseBytes(item));
+                TreeItem<File> cell = super.getTreeTableRow().getTreeItem();
+                String bytes = null;
+
+                if (cell != null && item != null) {
+                    File file = cell.getValue();
+
+                    if (file.isFile()) {
+                        bytes = parseBytes(item);
+                    }
+                }
+                setText(empty ? null : bytes);
+
             }
         });
         clientSizeCol.setPrefWidth(98);
