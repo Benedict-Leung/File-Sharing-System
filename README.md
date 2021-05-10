@@ -1,5 +1,3 @@
-# CSCI2020_Assignment2
-
 # File sharing system
 
 An application for sharing files between a server and client
